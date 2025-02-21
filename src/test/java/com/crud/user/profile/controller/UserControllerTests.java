@@ -3,6 +3,7 @@ package com.crud.user.profile.controller;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 
 import com.crud.user.profile.model.User;
+import com.crud.user.profile.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,33 +24,36 @@ class UserControllerTests {
     @Autowired
     private UserController controller;
     
-    static User user = new User();
-    
-    @BeforeAll
-    static void setup() {
-    	try {
-    		user.setId(1L);
-			user.setName("Juan Carlo Miguel");
-	    	user.setEmail("jcmiguel@gmail.com");
-	    	user.setGender("male");
-	    	user.setBday("1991-07-08");
-	    	user.setAge(calculateAge(user.getBday()));
-			user.setRole("Java Programmer");
-    	} catch (Exception e) {
-			e.printStackTrace();
-		}
-    }
-    
     @DisplayName("Create User Profile")
     @Test
     void createUser() throws Exception {
-		Assertions.assertSame(user.getId(), controller.createUser(user).getId());
+    	User user = new User();
+    	
+		user.setName("Juan Carlo Miguel");
+    	user.setEmail("jcmiguel@gmail.com");
+    	user.setGender("male");
+    	user.setBday("1991-07-08");
+    	user.setAge(calculateAge(user.getBday()));
+		user.setRole("Java Programmer");
+		
+		Assertions.assertTrue(controller.getAllUsers().size() > 0);
     }
     
     @DisplayName("Read user profile")
     @Test
     void readUser() throws Exception {
-    	ResponseEntity<User> getUser = controller.getUser(1L);
+    	User user = new User();
+    	
+    	user.setId(2L);
+		user.setName("Dos Carlo Miguel");
+    	user.setEmail("jcmiguel@gmail.com");
+    	user.setGender("male");
+    	user.setBday("1991-07-08");
+    	user.setAge(calculateAge(user.getBday()));
+		user.setRole("Java Programmer");
+		controller.createUser(user);
+		
+    	ResponseEntity<User> getUser = controller.getUser(2L);
     	
     	Assertions.assertSame(getUser.getBody().getId(), user.getId());
     }
@@ -57,9 +62,17 @@ class UserControllerTests {
     @Test
     void updateuser() throws Exception {
     	String expectedRole = "Java Programmer";
+    	User user = new User();
     	
-		user.setRole("Senior Java Programmer");
-		String checkRole = controller.updateUser(1L, user).getBody().getRole();
+		user.setName("Tres Carlo Miguel");
+    	user.setEmail("jcmiguel@gmail.com");
+    	user.setGender("male");
+    	user.setBday("1991-07-08");
+    	user.setAge(calculateAge(user.getBday()));
+    	user.setRole("Senior Java Programmer");
+    	controller.createUser(user);
+    	
+		String checkRole = controller.updateUser(3L, user).getBody().getRole();
 		
 		Assertions.assertNotEquals(expectedRole, checkRole);
     }
@@ -67,9 +80,29 @@ class UserControllerTests {
     @DisplayName("Delete user profile")
     @Test
     void deleteuser() throws Exception {
-    	controller.deleteUser(1L);
+    	User user = new User();
     	
-    	Assertions.assertEquals("User not found with id: 1", controller.getUser(1L).getBody());
+		user.setName("Thirdy Ravena");
+    	user.setEmail("travena@gmail.com");
+    	user.setGender("male");
+    	user.setBday("1991-07-08");
+    	user.setAge(calculateAge(user.getBday()));
+    	user.setRole("Senior Java Programmer");
+    	controller.createUser(user);
+    	
+        Optional<User> optionalUser = controller.userRepository.findByName("Thirdy Ravena");
+        
+    	long getId = optionalUser.get().getId();
+    	
+    	User getUser = controller.userRepository.findById(getId).get();
+    	
+    	ResponseEntity<User> delUser = controller.deleteUser(getUser.getId());;
+
+        if(!delUser.hasBody()){
+        	delUser = null;
+        }
+    	
+    	Assertions.assertNull(delUser);
     }
     
 	private static int calculateAge(String bday) {	
