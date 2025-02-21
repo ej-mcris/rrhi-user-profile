@@ -6,7 +6,6 @@ import java.time.Period;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 
 import com.crud.user.profile.model.User;
-import com.crud.user.profile.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
 

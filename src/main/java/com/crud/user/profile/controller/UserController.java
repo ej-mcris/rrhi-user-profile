@@ -1,9 +1,6 @@
 package com.crud.user.profile.controller;
 
-import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.crud.user.profile.exception.ResourceNotFoundException;
 import com.crud.user.profile.model.User;
 import com.crud.user.profile.repository.UserRepository;
+import com.crud.user.profile.service.UtilityService;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -25,11 +23,14 @@ public class UserController {
 
 	@Autowired
 	UserRepository userRepository;
+	
+	@Autowired
+	UtilityService service;
 
 	//Create
 	@PostMapping("/save")
 	public User createUser(@RequestBody User user) {
-		user.setAge(calculateAge(user.getBday()));
+		user.setAge(service.calculateAge(user.getBday()));
 		return userRepository.save(user);
 	}
 	
@@ -49,7 +50,7 @@ public class UserController {
 		getUser.setEmail(user.getEmail());
 		getUser.setGender(user.getGender());
 		getUser.setBday(user.getBday());
-		getUser.setAge(calculateAge(user.getBday()));
+		getUser.setAge(service.calculateAge(user.getBday()));
 		getUser.setRole(user.getRole());
 		
 		User updateUser = userRepository.save(getUser);
@@ -75,13 +76,5 @@ public class UserController {
 				.orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 		
 		return ResponseEntity.ok(getUser);
-	}
-	
-	private static int calculateAge(String bday) {
-		
-	   LocalDate myObj = LocalDate.now();
-	   LocalDate dob = LocalDate.parse(bday);
-		
-	   return Period.between(dob, myObj).getYears();
 	}
 }
